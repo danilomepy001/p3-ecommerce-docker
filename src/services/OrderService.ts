@@ -1,8 +1,8 @@
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../container/types';
 import logger from '../lib/logger';
-import { ValidationError } from '../domain/errors';
-import { OrderItem, OrderLine } from '../domain/Order';
+import { NotFoundError, ValidationError } from '../domain/errors';
+import { Order, OrderItem, OrderLine } from '../domain/Order';
 import { ProductFactory } from '../domain/ProductFactory';
 import { IProductRepository } from '../repositories/IProductRepository';
 import { IOrderRepository } from '../repositories/IOrderRepository';
@@ -45,5 +45,11 @@ export class OrderService {
     logger.info(`Email enviado: ${emailPreview}`);
 
     return { orderId: order.id, total, emailPreview };
+  }
+
+  async getOrder(id: number): Promise<Order> {
+    const order = await this.orders.findById(id);
+    if (!order) throw new NotFoundError(`Pedido ${id} não encontrado`);
+    return order;
   }
 }
